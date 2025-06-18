@@ -5,6 +5,8 @@ on:
     # Publish `master` as Docker `prod` image.
     branches:
       - master
+  
+  workflow_dispatch:
 
 env:
   IMAGE_NAME: wachterbot
