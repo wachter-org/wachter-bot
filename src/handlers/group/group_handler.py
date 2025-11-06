@@ -13,6 +13,7 @@ from src.model import Chat, User, session_scope
 from src.handlers.utils import setup_counter, setup_histogram
 
 
+
 new_member_counter = setup_counter("new_member.meter", "new_member_counter")
 whois_counter = setup_counter("new_whois.meter", "new_whois_counter")
 ban_counter = setup_counter("ban.meter", "ban_counter")
