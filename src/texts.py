@@ -111,7 +111,7 @@ def _(text):
     Returns:
         str: The escaped message text associated with the input key, or None if not found.
     """
-    raw_message = _texts.get(text)
-    if raw_message is not None:
-        return escape_markdown(raw_message)
-    return None
+    return _texts.get(text)
+    # if raw_message is not None:
+    #     return escape_markdown(raw_message)
+    # return None

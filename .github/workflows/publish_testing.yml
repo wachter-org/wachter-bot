@@ -6,6 +6,8 @@ on:
     branches:
       - dev
 
+  workflow_dispatch:
+
 env:
   IMAGE_NAME: wachterbot
   GITHUB_USERNAME: alexeyqu

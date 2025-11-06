@@ -103,6 +103,10 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT, handlers.message_handler))
     application.add_error_handler(handlers.error_handler)
 
+    application.job_queue.run_repeating(
+        handlers.group.group_handler.db_metrics_reader_helper, 3600, name="metrics_exporter"
+    )
+
     tg_logger.info("Bot has started successfully")
     application.run_polling()
 

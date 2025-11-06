@@ -16,14 +16,13 @@ from src.handlers.utils import setup_counter, setup_histogram
 new_member_counter = setup_counter("new_member.meter", "new_member_counter")
 whois_counter = setup_counter("new_whois.meter", "new_whois_counter")
 ban_counter = setup_counter("ban.meter", "ban_counter")
+chats_histogram = setup_histogram("chats.meter", "chats_counter")
+users_histogram = setup_histogram("users.meter", "users_counter")
+unique_users_histogram = setup_histogram(
+    "unique_users.meter", "unique_users_counter"
+)
 
-
-async def db_metrics_reader_helper(context: ContextTypes.DEFAULT_TYPE):
-    chats_histogram = setup_histogram("chats.meter", "chats_counter")
-    users_histogram = setup_histogram("users.meter", "users_counter")
-    unique_users_histogram = setup_histogram(
-        "unique_users.meter", "unique_users_counter"
-    )
+async def db_metrics_reader_helper():
     async with session_scope() as sess:
         # Number of chats
         result = await sess.execute(select(func.count(Chat.id)))
@@ -54,9 +53,6 @@ async def on_new_chat_members(
     """
     chat_id = update.message.chat_id
     new_member_counter.add(1, {"chat_id": chat_id})
-    context.job_queue.run_repeating(
-        db_metrics_reader_helper, 3600, name="metrics_exporter"
-    )
     user_ids = [
         new_chat_member.id for new_chat_member in update.message.new_chat_members
     ]
@@ -344,18 +340,18 @@ async def _mention_markdown(bot: Bot, chat_id: int, user_id: int, message: str) 
     #        # если пользователь удален, у него пропадает имя и markdown выглядит так: (tg://user?id=666)
     #        user_mention_markdown = ""
     #    else:
-    user_mention_markdown = user.mention_markdown_v2()
+    user_mention_markdown = user.mention_markdown()
 
     # \ нужен из-за формата сообщений в маркдауне
     tg_logger.warning(user_mention_markdown)
     #user_mention_markdown = user_mention_markdown.replace("/[", "[")
     #user_mention_markdown = user_mention_markdown.replace("]", "\]")
     # wtf
-    tg_logger.warning(message.replace("%USER\\\\\\_MENTION%", user_mention_markdown))
     message_mention = message.replace("%USER\\\\\\_MENTION%", user_mention_markdown)
     message_mention = message_mention.replace("%USER\\\\_MENTION%", user_mention_markdown)
     message_mention = message_mention.replace("%USER\\_MENTION%", user_mention_markdown)
     message_mention = message_mention.replace("%USER_MENTION%", user_mention_markdown)
+    tg_logger.warning(message_mention)
     return message_mention
 
 
@@ -371,11 +367,11 @@ async def _send_message_with_deletion(
 
     if reply_to is not None:
         sent_message = await reply_to.reply_text(
-            text=message_markdown, parse_mode=ParseMode.MARKDOWN_V2
+            text=message_markdown, parse_mode=ParseMode.MARKDOWN
         )
     else:
         sent_message = await context.bot.send_message(
-            chat_id, text=message_markdown, parse_mode=ParseMode.MARKDOWN_V2
+            chat_id, text=message_markdown, parse_mode=ParseMode.MARKDOWN
         )
 
     # correctly handle negative timeouts
