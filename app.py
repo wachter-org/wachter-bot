@@ -117,7 +117,6 @@ def main():
         handlers.group.group_handler.db_metrics_reader_helper,
         3600,
         name="metrics_exporter",
-        replace_existing=True,
         misfire_grace_time=300,  # Allow job to run up to 5 minutes late
     )
     tg_logger.info(f"Scheduled metrics_exporter job: {job.name}, next run: {job.next_run_time}")
