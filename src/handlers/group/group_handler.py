@@ -22,7 +22,7 @@ unique_users_histogram = setup_histogram(
     "unique_users.meter", "unique_users_counter"
 )
 
-async def db_metrics_reader_helper():
+async def db_metrics_reader_helper(context: ContextTypes.DEFAULT_TYPE):
     async with session_scope() as sess:
         # Number of chats
         result = await sess.execute(select(func.count(Chat.id)))
