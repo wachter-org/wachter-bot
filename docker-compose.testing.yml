@@ -3,7 +3,7 @@ version: "3.9"
 services:
   wachterbot-testing:
     container_name: wachterbot-testing
-    image: ghcr.io/wachter-org/wachter_bot/wachterbot:testing
+    image: ghcr.io/wachter-org/wachter-bot/wachterbot:testing
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - TELEGRAM_ERROR_CHAT_ID=${TELEGRAM_ERROR_CHAT_ID}
