@@ -5,4 +5,7 @@ from src.logging import tg_logger
 
 
 def error_handler(update: Update, context: CallbackContext):
-    tg_logger.warning(f'Update "{update}" caused error', exc_info=context.error)
+    try:
+        tg_logger.warning(f'Update "{update}" caused error', exc_info=context.error)
+    except Exception:
+        print(f"Error in error handler: {context.error}")
