@@ -67,12 +67,15 @@ def main():
         .build()
     )
     if "PERSISTENCE_DATABASE_URL" in os.environ:
+        tg_logger.info(f"Using SQLAlchemy job store with PERSISTENCE_DATABASE_URL")
         application.job_queue.scheduler.add_jobstore(
             PTBSQLAlchemyJobStore(
                 application=application,
                 url=os.environ["PERSISTENCE_DATABASE_URL"],
             )
         )
+    else:
+        tg_logger.info("No PERSISTENCE_DATABASE_URL set, using in-memory job store")
 
     application.add_handler(CommandHandler("help", handlers.help_handler))
     application.add_handler(CommandHandler("listjobs", handlers.list_jobs_handler))
@@ -103,9 +106,21 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT, handlers.message_handler))
     application.add_error_handler(handlers.error_handler)
 
-    application.job_queue.run_repeating(
-        handlers.group.group_handler.db_metrics_reader_helper, 3600, name="metrics_exporter"
+    # Remove any existing metrics_exporter jobs to avoid duplicates
+    existing_jobs = [job for job in application.job_queue.jobs() if job.name == "metrics_exporter"]
+    if existing_jobs:
+        tg_logger.info(f"Removing {len(existing_jobs)} existing metrics_exporter job(s)")
+        for job in existing_jobs:
+            job.schedule_removal()
+
+    job = application.job_queue.run_repeating(
+        handlers.group.group_handler.db_metrics_reader_helper,
+        3600,
+        name="metrics_exporter",
+        replace_existing=True,
+        misfire_grace_time=300,  # Allow job to run up to 5 minutes late
     )
+    tg_logger.info(f"Scheduled metrics_exporter job: {job.name}, next run: {job.next_run_time}")
 
     tg_logger.info("Bot has started successfully")
     application.run_polling()
