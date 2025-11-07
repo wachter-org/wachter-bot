@@ -3,7 +3,7 @@ version: "3.9"
 services:
   wachterbot-prod:
     container_name: wachterbot-prod
-    image: ghcr.io/alexeyqu/wachter_bot/wachterbot:prod
+    image: ghcr.io/wachter-org/wachter_bot/wachterbot:prod
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - UPTRACE_DSN=${UPTRACE_DSN}
