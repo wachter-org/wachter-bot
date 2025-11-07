@@ -118,7 +118,7 @@ def main():
         3600,
         name="metrics_exporter",
     )
-    tg_logger.info(f"Scheduled metrics_exporter job: {job.name}, next run: {job.next_run_time}")
+    tg_logger.info(f"Scheduled metrics_exporter job: {job.name}")
 
     tg_logger.info("Bot has started successfully")
     application.run_polling()
