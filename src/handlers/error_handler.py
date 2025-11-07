@@ -4,7 +4,7 @@ from telegram.ext import CallbackContext
 from src.logging import tg_logger
 
 
-def error_handler(update: Update, context: CallbackContext):
+async def error_handler(update: Update, context: CallbackContext):
     try:
         tg_logger.warning(f'Update "{update}" caused error', exc_info=context.error)
     except Exception:
