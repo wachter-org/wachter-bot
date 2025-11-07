@@ -82,7 +82,9 @@ jobs:
           envs: GITHUB_USERNAME, GITHUB_TOKEN, ROOT_DIR, DATABASE_URL, PERSISTENCE_DATABASE_URL, TELEGRAM_TOKEN, TEAM_TELEGRAM_IDS, UPTRACE_DSN, DATABASE_USER, DATABASE_PASSWORD, PERSISTENCE_DATABASE_USER, PERSISTENCE_DATABASE_PASSWORD
           script: |
             export CR_PAT=${{ secrets.GH_PAT_READ_PACKAGE }}
-            echo $CR_PAT | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin || exit 1
+            mkdir -p ~/.docker
+            AUTH=$(echo -n "$GITHUB_USERNAME:$CR_PAT" | base64)
+            echo "{\"auths\":{\"ghcr.io\":{\"auth\":\"$AUTH\"}}}" > ~/.docker/config.json
             cd ${{ env.ROOT_DIR }}
             touch .env
             echo DATABASE_URL=${{ env.DATABASE_URL }} >> .env
